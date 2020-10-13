@@ -66,17 +66,24 @@ void SushiBar_leave(SushiBar *sb, int tid)
         pthread_mutex_unlock(&sb->mtx);
 
         pthread_barrier_wait(&sb->barr);
+
+        pthread_mutex_lock(&sb->mtx);
+        sb->count--;
+        printf("Thread id: %d SAIU.\t count = %d\n", tid, sb->count);
+        pthread_mutex_unlock(&sb->mtx);
+
+        pthread_barrier_wait(&sb->barr);
+        sem_post(&sb->seats_sem);
+        return;
     }
     else
     {
         pthread_mutex_unlock(&sb->mtx);
+        pthread_mutex_lock(&sb->mtx);
+        sb->count--;
+        pthread_mutex_unlock(&sb->mtx);
+        sem_post(&sb->seats_sem);
+        return;
     }
-
-    sem_post(&sb->seats_sem);
-
-    pthread_mutex_lock(&sb->mtx);
-    sb->count--;
-    printf("Thread id: %d SAIU.\t count = %d\n", tid, sb->count);
-    pthread_mutex_unlock(&sb->mtx);
     return;
 }
