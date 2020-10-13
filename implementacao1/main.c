@@ -1,3 +1,7 @@
+/*
+    compilar (linux) : gcc -pthread main.c SushiBar/SushiBar.c -o main
+*/
+
 #include "SushiBar/SushiBar.h"
 #include <time.h>
 #include <math.h>
