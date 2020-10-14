@@ -2,13 +2,16 @@
 
 struct SushiBar
 {
-    sem_t seats_sem;
-    pthread_mutex_t mtx;
-    pthread_barrier_t barr;
-    int n;
-    int count;
+    sem_t seats_sem;        //semaforo para controlar a entrada no restaurante
+    pthread_mutex_t mtx;    //mutex para garantir exclusividade mutua quando acessar 'count' e 'n'
+    pthread_barrier_t barr; //barreira para o caso de bar lotado
+
+    //variaveis de controle
+    int n;     //número de lugares no bar
+    int count; //número de lugares ocupados no bar
 };
 
+//Inicializa a struct de acordo com o número de mesas disponíveis
 SushiBar *SushiBar_init(int n_)
 {
     SushiBar *new = (SushiBar *)malloc(sizeof(SushiBar));
@@ -38,7 +41,9 @@ void SushiBar_enter(SushiBar *sb, int tid)
         De toda forma sinalizar ao semaforo interesse em um lugar no bar
     */
 
-    sem_wait(&(sb->seats_sem));
+    sem_wait(&(sb->seats_sem)); //aguardar lugar disponível no bar
+
+    //incrementa variavel controladora
     pthread_mutex_lock(&sb->mtx);
     sb->count++;
     printf("Thread id: %c ENTROU.\t count = %d\n", 'A' + tid, sb->count);
@@ -50,7 +55,6 @@ void SushiBar_enter(SushiBar *sb, int tid)
 void SushiBar_leave(SushiBar *sb, int tid)
 {
     //Lockar a mutex para acessar 'count' e 'n' com segurança
-
     pthread_mutex_lock(&sb->mtx);
 
     /*
@@ -65,15 +69,14 @@ void SushiBar_leave(SushiBar *sb, int tid)
 
         pthread_mutex_unlock(&sb->mtx);
 
-        pthread_barrier_wait(&sb->barr);
+        pthread_barrier_wait(&sb->barr); //aguardar todos chegarem a este ponto para decrementar variavel de controle
 
         pthread_mutex_lock(&sb->mtx);
         sb->count--;
         printf("Thread id: %c SAIU.\t count = %d\n", 'A' + tid, sb->count);
-
         pthread_mutex_unlock(&sb->mtx);
 
-        pthread_barrier_wait(&sb->barr);
+        pthread_barrier_wait(&sb->barr); // aguardar que todos decrementem a variavel de controle para então sair juntos
         sem_post(&sb->seats_sem);
         return;
     }
