@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define NUMERO_PESSOAS 15
+#define NUMERO_PESSOAS 12
 
 int lugares = 5;
 int cheio = 0;
@@ -11,33 +11,31 @@ int sairam = 0;
 pthread_mutex_t trava;
 pthread_barrier_t barreira;
 
-void Comer(int thread_id)
+void Comer(int thread_id, int wait)
 {
-    if (cheio)
-    {
-        printf("Pessoa %d entrou na fila.\n", thread_id);
-        while (cheio)
-            sleep(3);
-        printf("Pessoa %d esta saindo da fila.\n", thread_id);
-        sleep(3);
-    }
+    sleep(wait);
     pthread_mutex_lock(&trava);
-    printf("Pessoa %d esta comendo.\n", thread_id);
+    /*
+    possivel erro em que duas pessoas acabam 
+    entrando ao mesmo tempo para subtrair os lugares
+    */
+    printf("Pessoa %d esta comendo.", thread_id);
     lugares--;
-    printf("\n(%d lugares vagos)\n", lugares);
+    //printf("\n(%d lugares vagos)\n", lugares);
 
     if (lugares == 0)
         cheio = 1;
     pthread_mutex_unlock(&trava);
-    //printf("\n\n%d\n\n", cheio);
+    printf("\tcheio = %d\n", cheio);
 }
 
-void Ir_Embora(int thread_id)
+void Ir_Embora(int thread_id, int wait)
 {
+    sleep(wait);
     pthread_mutex_lock(&trava);
-    printf("Pessoa %d terminou de comer.\n", thread_id);
+    printf("Pessoa %d terminou de comer.", thread_id);
     lugares++;
-    printf("\n(%d lugares vagos)\n", lugares);
+    //printf("\n(%d lugares vagos)\n", lugares);
 
     if (cheio){
         sairam++;   //contando quantas pessoas acompanhadas foram embora
@@ -53,18 +51,26 @@ void Ir_Embora(int thread_id)
         sairam = 0;
     }
     pthread_mutex_unlock(&trava);
-    //printf("\n\n%d\n\n", cheio);
+    printf("\tcheio = %d\n", cheio);
 }
 
 void *Sushi(void *thread)
 {
     int thread_id = *(int *)thread;
     int wait_sec = rand() % 5 + 1;
-    printf("Pessoa %d chegou no sushiBar.\n", thread_id);
-    Comer(thread_id);
+    //printf("Pessoa %d chegou no sushiBar.\n", thread_id);
+    if (cheio == 1)
+    {
+        /*pessoas n estao entrando na fila*/
+        printf("Pessoa %d entrou na fila.\n", thread_id);
+        while (cheio == 1)
+            sleep(3);
+        printf("Pessoa %d esta saindo da fila.\n", thread_id);
+    }
+    Comer(thread_id, wait_sec);
     sleep(wait_sec);
-    Ir_Embora(thread_id);
-    printf("Pessoa %d foi embora.\n", thread_id);
+    Ir_Embora(thread_id, wait_sec);
+    //printf("Pessoa %d foi embora.\n", thread_id);
 
     return NULL;
 }
