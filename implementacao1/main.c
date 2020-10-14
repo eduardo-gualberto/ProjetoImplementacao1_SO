@@ -40,9 +40,7 @@ int main(int argc, char *argv[])
     pthread_t t[THREAD_N];
 
     for (int i = 0; i < THREAD_N; i++)
-    {
         pthread_create(&t[i], NULL, thread_entry, i);
-    }
 
     for (int i = 0; i < THREAD_N; i++)
         pthread_join(t[i], NULL);
