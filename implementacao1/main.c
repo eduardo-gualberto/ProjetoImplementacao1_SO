@@ -8,21 +8,34 @@
 #include <math.h>
 #include <unistd.h>
 
-#define SEATS_N 5
-#define THREAD_N 15
-
 SushiBar *sb;
 
 void *thread_entry(int tid)
 {
     SushiBar_enter(sb, tid);
-    sleep(3);
+
+    sleep((rand() % 5) + 1); //comer....
+
     SushiBar_leave(sb, tid);
     return NULL;
 }
 
 int main(int argc, char *argv[])
 {
+    srand(time(NULL));
+    int SEATS_N = 5, THREAD_N = 15;
+
+    if (argc > 1)
+    {
+        SEATS_N = atoi(argv[1]);
+        THREAD_N = atoi(argv[2]);
+        printf("Executing with %d seats and %d threads.\n\n", SEATS_N, THREAD_N);
+    }
+    else
+    {
+        printf("Usage: './main <seats> <thread_num>'.\nDefaults to seats = 5, thread_num = 15.\n\n");
+    }
+
     sb = SushiBar_init(SEATS_N);
     pthread_t t[THREAD_N];
 
