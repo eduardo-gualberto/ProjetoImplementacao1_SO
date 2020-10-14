@@ -3,7 +3,7 @@
 struct SushiBar
 {
     sem_t seats_sem;
-    pthread_mutex_t mtx;
+    sem_t mtx;
     pthread_barrier_t barr;
     int n;
     int count;
@@ -15,9 +15,7 @@ SushiBar *SushiBar_init(int max)
     new->count = 0;
     new->n = max;
 
-    pthread_mutex_t aux = PTHREAD_MUTEX_INITIALIZER;
-
-    new->mtx = aux;
+    sem_init(&new->mtx, 0, 1);
 
     pthread_barrier_init(&(new->barr), NULL, new->n);
 
@@ -41,10 +39,10 @@ void SushiBar_enter(SushiBar *sb, int tid)
     */
 
     sem_wait(&(sb->seats_sem));
-    pthread_mutex_lock(&sb->mtx);
+    sem_wait(&sb->mtx);
     sb->count++;
-    printf("Thread id: %d ENTROU.\t count = %d\n", tid, sb->count);
-    pthread_mutex_unlock(&sb->mtx);
+    printf("Thread id: %c ENTROU.\t count = %d\n", 'A' + tid, sb->count);
+    sem_post(&sb->mtx);
     return;
 }
 
@@ -52,7 +50,7 @@ void SushiBar_enter(SushiBar *sb, int tid)
 void SushiBar_leave(SushiBar *sb, int tid)
 {
     //Lockar a mutex para acessar 'count' e 'n' com segurança
-    pthread_mutex_lock(&sb->mtx);
+    sem_wait(&sb->mtx);
 
     /*
         Caso a quantidade de pessoas no bar seja a maxima, 
@@ -63,14 +61,14 @@ void SushiBar_leave(SushiBar *sb, int tid)
 
     if (sb->count >= sb->n)
     {
-        pthread_mutex_unlock(&sb->mtx);
+        sem_post(&sb->mtx);
 
         pthread_barrier_wait(&sb->barr);
 
-        pthread_mutex_lock(&sb->mtx);
+        sem_wait(&sb->mtx);
         sb->count--;
-        printf("Thread id: %d SAIU.\t count = %d\n", tid, sb->count);
-        pthread_mutex_unlock(&sb->mtx);
+        printf("Thread id: %c SAIU.\t count = %d\n", 'A' + tid, sb->count);
+        sem_post(&sb->mtx);
 
         pthread_barrier_wait(&sb->barr);
         sem_post(&sb->seats_sem);
@@ -78,10 +76,8 @@ void SushiBar_leave(SushiBar *sb, int tid)
     }
     else
     {
-        pthread_mutex_unlock(&sb->mtx);
-        pthread_mutex_lock(&sb->mtx);
         sb->count--;
-        pthread_mutex_unlock(&sb->mtx);
+        sem_post(&sb->mtx);
         sem_post(&sb->seats_sem);
         return;
     }
