@@ -3,19 +3,19 @@
 struct SushiBar
 {
     sem_t seats_sem;
-    sem_t mtx;
+    pthread_mutex_t mtx;
     pthread_barrier_t barr;
     int n;
     int count;
 };
 
-SushiBar *SushiBar_init(int max)
+SushiBar *SushiBar_init(int n_)
 {
     SushiBar *new = (SushiBar *)malloc(sizeof(SushiBar));
     new->count = 0;
-    new->n = max;
+    new->n = n_;
 
-    sem_init(&new->mtx, 0, 1);
+    pthread_mutex_init(&new->mtx, NULL);
 
     pthread_barrier_init(&(new->barr), NULL, new->n);
 
@@ -39,10 +39,10 @@ void SushiBar_enter(SushiBar *sb, int tid)
     */
 
     sem_wait(&(sb->seats_sem));
-    sem_wait(&sb->mtx);
+    pthread_mutex_lock(&sb->mtx);
     sb->count++;
     printf("Thread id: %c ENTROU.\t count = %d\n", 'A' + tid, sb->count);
-    sem_post(&sb->mtx);
+    pthread_mutex_unlock(&sb->mtx);
     return;
 }
 
@@ -50,7 +50,8 @@ void SushiBar_enter(SushiBar *sb, int tid)
 void SushiBar_leave(SushiBar *sb, int tid)
 {
     //Lockar a mutex para acessar 'count' e 'n' com segurança
-    sem_wait(&sb->mtx);
+
+    pthread_mutex_lock(&sb->mtx);
 
     /*
         Caso a quantidade de pessoas no bar seja a maxima, 
@@ -61,14 +62,16 @@ void SushiBar_leave(SushiBar *sb, int tid)
 
     if (sb->count >= sb->n)
     {
-        sem_post(&sb->mtx);
+
+        pthread_mutex_unlock(&sb->mtx);
 
         pthread_barrier_wait(&sb->barr);
 
-        sem_wait(&sb->mtx);
+        pthread_mutex_lock(&sb->mtx);
         sb->count--;
         printf("Thread id: %c SAIU.\t count = %d\n", 'A' + tid, sb->count);
-        sem_post(&sb->mtx);
+
+        pthread_mutex_unlock(&sb->mtx);
 
         pthread_barrier_wait(&sb->barr);
         sem_post(&sb->seats_sem);
@@ -77,7 +80,8 @@ void SushiBar_leave(SushiBar *sb, int tid)
     else
     {
         sb->count--;
-        sem_post(&sb->mtx);
+
+        pthread_mutex_unlock(&sb->mtx);
         sem_post(&sb->seats_sem);
         return;
     }
