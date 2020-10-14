@@ -25,11 +25,16 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     int SEATS_N = 5, THREAD_N = 15;
 
-    if (argc > 1)
+    if (argc > 2)
     {
         SEATS_N = atoi(argv[1]);
         THREAD_N = atoi(argv[2]);
         printf("Executing with %d seats and %d threads.\n\n", SEATS_N, THREAD_N);
+    }
+    else if (argc == 2)
+    {
+        printf("Usage: './main' wich defaults to 5 seats and 15 threads,\nor specify the amount of seats and threads with: './main <seats> <thread_num>'.\n");
+        return 0;
     }
     else
     {
