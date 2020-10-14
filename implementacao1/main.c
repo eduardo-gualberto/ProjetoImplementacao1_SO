@@ -12,11 +12,11 @@
 
 SushiBar *sb;
 
-void *thread_entry(void *tid)
+void *thread_entry(int tid)
 {
-    SushiBar_enter(sb, *(int *)tid);
+    SushiBar_enter(sb, tid);
     sleep(3);
-    SushiBar_leave(sb, *(int *)tid);
+    SushiBar_leave(sb, tid);
     return NULL;
 }
 
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < THREAD_N; i++)
     {
-        pthread_create(&t[i], NULL, thread_entry, &i);
+        pthread_create(&t[i], NULL, thread_entry, i);
     }
 
     for (int i = 0; i < THREAD_N; i++)
