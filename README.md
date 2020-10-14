@@ -6,3 +6,5 @@
 ### Eduardo
 ### Lucas
 ### Rafael
+
+## Deixar um diretório local contendo os arquivos executáveis e ignorá-lo com .gitignore
