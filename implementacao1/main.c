@@ -1,5 +1,5 @@
 /*
-    compilar (linux) : gcc -pthread main.c SushiBar/SushiBar.c -o main
+    compilar (linux) : gcc -pthread main.c SushiBar/SushiBar.c -o buid/main
 */
 
 #include "SushiBar/SushiBar.h"
