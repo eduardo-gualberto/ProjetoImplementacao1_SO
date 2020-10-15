@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
         printf("Usage: './main <seats> <thread_num>'.\nDefaults to seats = 5, thread_num = 15.\n\n");
     }
 
-    sb = SushiBar_init(SEATS_N);
+    sb = SushiBar_init(SEATS_N, THREAD_N);
     pthread_t t[THREAD_N];
 
     for (int i = 0; i < THREAD_N; i++)

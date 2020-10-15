@@ -5,6 +5,7 @@ struct SushiBar
     sem_t seats_sem;        //semaforo para controlar a entrada no restaurante
     pthread_mutex_t mtx;    //mutex para garantir exclusividade mutua quando acessar 'count' e 'n'
     pthread_barrier_t barr; //barreira para o caso de bar lotado
+    Queue_t q;              //fila para garantir espera justa
 
     //variaveis de controle
     int n;       //número de lugares no bar
@@ -13,7 +14,7 @@ struct SushiBar
 };
 
 //Inicializa a struct de acordo com o número de mesas disponíveis
-SushiBar *SushiBar_init(int n_)
+SushiBar *SushiBar_init(int n_, int t_)
 {
     SushiBar *new = (SushiBar *)malloc(sizeof(SushiBar));
     new->count = new->waiting = 0;
@@ -25,11 +26,14 @@ SushiBar *SushiBar_init(int n_)
 
     sem_init(&(new->seats_sem), 0, new->n);
 
+    q_init(&new->q, sizeof(int), t_, FIFO, 0);
+
     return new;
 }
 
 void SushiBar_destroy(SushiBar *sb)
 {
+    q_kill(&sb->q);
     free(sb);
 }
 
@@ -47,18 +51,18 @@ void SushiBar_enter(SushiBar *sb, int tid)
     if (test_queue)
     {
         sb->waiting++;
-        printf("Customer id: %c is waiting in queue. There are %d people waiting.\n", 'A' + tid, sb->waiting);
+        printf("Customer id: %d is waiting in queue. There are %d people waiting.\n", tid, sb->waiting);
     }
     pthread_mutex_unlock(&sb->mtx);
-    sem_wait(&(sb->seats_sem)); //aguardar lugar disponível no bar
+
+    // sem_wait(&(sb->seats_sem)); //aguardar lugar disponível no bar
+    SushiBar_queue(sb, tid);
 
     //incrementa variavel controladora
     pthread_mutex_lock(&sb->mtx);
-    sb->count++;
     if (test_queue)
         sb->waiting--;
-    // printf("Thread id: %c ENTROU.\t count = %d\n", 'A' + tid, sb->count);
-    printf("Customer id: %c took a seat. There are %d seats available and %d unavailable.\n", 'A' + tid, sb->n - sb->count, sb->count);
+    printf("Customer id: %d took a seat. There are %d seats available and %d unavailable.\n", tid, sb->n - sb->count, sb->count);
     pthread_mutex_unlock(&sb->mtx);
     return;
 }
@@ -85,22 +89,68 @@ void SushiBar_leave(SushiBar *sb, int tid)
 
         pthread_mutex_lock(&sb->mtx);
         sb->count--;
-        // printf("Thread id: %c SAIU.\t count = %d\n", 'A' + tid, sb->count);
-        printf("Customer id: %c left. There are %d seats available.\n", 'A' + tid, sb->n - sb->count);
+        printf("Customer id: %d left. There are %d seats available.\n", tid, sb->n - sb->count);
         pthread_mutex_unlock(&sb->mtx);
 
         pthread_barrier_wait(&sb->barr); // aguardar que todos decrementem a variavel de controle para então sair juntos
+
         sem_post(&sb->seats_sem);
         return;
     }
     else
     {
         sb->count--;
-        // printf("Thread id: %c SAIU.\t count = %d\n", 'A' + tid, sb->count);
-        printf("Customer id: %c left. There are %d seats available.\n", 'A' + tid, sb->n - sb->count);
+        printf("Customer id: %d left. There are %d seats available.\n", tid, sb->n - sb->count);
         pthread_mutex_unlock(&sb->mtx);
         sem_post(&sb->seats_sem);
         return;
     }
     return;
+}
+
+void SushiBar_queue(SushiBar *sb, int tid)
+{
+    pthread_mutex_lock(&sb->mtx);
+    if (sb->count >= sb->n)
+    {
+        q_push(&sb->q, (void *)(&tid));
+        // printf("Entrou pra fila\n");
+        pthread_mutex_unlock(&sb->mtx);
+        int *aux = (int *)malloc(sizeof(int));
+        int notempty;
+    WAIT:
+        do
+        {
+            pthread_mutex_lock(&sb->mtx);
+            q_peek(&sb->q, aux);
+            // printf("Entrou no loop\n");
+            // printf("Checou o primeiro da fila\n");
+            notempty = sb->count > 0;
+            pthread_mutex_unlock(&sb->mtx);
+        } while (notempty && *aux != tid);
+
+        pthread_mutex_lock(&sb->mtx);
+        if (sb->count < sb->n && *aux == tid)
+        {
+            sb->count++;
+            pthread_mutex_unlock(&sb->mtx);
+            sem_wait(&sb->seats_sem);
+            pthread_mutex_lock(&sb->mtx);
+            q_pop(&sb->q, aux);
+            pthread_mutex_unlock(&sb->mtx);
+            return;
+        }
+        else
+        {
+            pthread_mutex_unlock(&sb->mtx);
+            goto WAIT;
+        }
+    }
+    else
+    {
+        sb->count++;
+        pthread_mutex_unlock(&sb->mtx);
+        sem_wait(&sb->seats_sem);
+        return;
+    }
 }
