@@ -10,6 +10,14 @@ int cheio = 0;
 int sairam = 0;
 pthread_mutex_t trava;
 
+int verifica_Cheio(){
+    int esta_cheio;
+    pthread_mutex_lock(&trava);
+    esta_cheio = cheio;
+    pthread_mutex_unlock(&trava);
+    return esta_cheio;
+}
+
 void *Sushi(void *thread)
 {
     int thread_id = *(int *)thread;
@@ -20,12 +28,13 @@ void *Sushi(void *thread)
     {
         printf("Pessoa \t%d\t entrou na fila.\n", thread_id);
         pthread_mutex_unlock(&trava);
-        while (cheio)
+        while (verifica_Cheio())
         {
             sleep(wait_sec);
             //printf("**Pessoa %d ainda esta na fila.\n", thread_id);
         }
         //duas pessoas ainda estao saindo da fila ao msm tempo
+        //possivel solução: uso de função
         pthread_mutex_lock(&trava);
     }
     lugares--;
