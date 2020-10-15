@@ -3,25 +3,21 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define NUMERO_PESSOAS 12
+#define NUMERO_PESSOAS 15
 
 int lugares = 5;
 int cheio = 0;
 int sairam = 0;
 pthread_mutex_t trava;
 pthread_barrier_t barreira;
-
+/*
 void Comer(int thread_id, int wait)
 {
     sleep(wait);
     pthread_mutex_lock(&trava);
-    /*
-    possivel erro em que duas pessoas acabam 
-    entrando ao mesmo tempo para subtrair os lugares
-    */
     printf("Pessoa %d esta comendo.", thread_id);
     lugares--;
-    //printf("\n(%d lugares vagos)\n", lugares);
+    printf("\t\t(%d lugares vagos)\t", lugares);
 
     if (lugares == 0)
         cheio = 1;
@@ -35,12 +31,58 @@ void Ir_Embora(int thread_id, int wait)
     pthread_mutex_lock(&trava);
     printf("Pessoa %d terminou de comer.", thread_id);
     lugares++;
-    //printf("\n(%d lugares vagos)\n", lugares);
+    printf("\t(%d lugares vagos)\t", lugares);
 
-    if (cheio){
-        sairam++;   //contando quantas pessoas acompanhadas foram embora
+    if (cheio)
+    {
+        sairam++; //contando quantas pessoas acompanhadas foram embora
     }
-    if (sairam >= 5)    
+    if (sairam >= 5)
+    {
+        cheio = 0;
+        sairam = 0;
+    }
+    pthread_mutex_unlock(&trava);
+    printf("\tcheio = %d\n", cheio);
+}
+*/
+void *Sushi(void *thread)
+{
+    int thread_id = *(int *)thread;
+    int wait_sec = rand() % 5 + 1;
+    //printf("Pessoa %d chegou no sushiBar.\n", thread_id);
+    if (cheio == 1)
+    {
+        printf("Pessoa %d entrou na fila.\n", thread_id);
+        while (cheio == 1)
+            sleep(3);
+        //printf("Pessoa %d esta saindo da fila.\n", thread_id);
+    }
+    //Comer(thread_id, wait_sec);
+    pthread_mutex_lock(&trava);
+    
+    printf("Pessoa %d esta comendo.", thread_id);
+    lugares--;
+    printf("\t\t(%d lugares vagos)\t", lugares);
+
+    if (lugares == 0)
+        cheio = 1;
+    printf("\tcheio = %d\n", cheio);
+    pthread_mutex_unlock(&trava);
+
+    sleep(wait_sec);
+
+    //Ir_Embora(thread_id, wait_sec);
+    pthread_mutex_lock(&trava);
+    printf("Pessoa %d terminou de comer.", thread_id);
+    lugares++;
+    printf("\t(%d lugares vagos)\t", lugares);
+
+    if (cheio)
+    {
+        sairam++; //contando quantas pessoas acompanhadas foram embora
+    }
+    if (sairam >= 5)
     /*
     se apos todos os 
     lugares estarem ocupados, 5 pessoas sairem
@@ -50,26 +92,8 @@ void Ir_Embora(int thread_id, int wait)
         cheio = 0;
         sairam = 0;
     }
-    pthread_mutex_unlock(&trava);
     printf("\tcheio = %d\n", cheio);
-}
-
-void *Sushi(void *thread)
-{
-    int thread_id = *(int *)thread;
-    int wait_sec = rand() % 5 + 1;
-    //printf("Pessoa %d chegou no sushiBar.\n", thread_id);
-    if (cheio == 1)
-    {
-        /*pessoas n estao entrando na fila*/
-        printf("Pessoa %d entrou na fila.\n", thread_id);
-        while (cheio == 1)
-            sleep(3);
-        printf("Pessoa %d esta saindo da fila.\n", thread_id);
-    }
-    Comer(thread_id, wait_sec);
-    sleep(wait_sec);
-    Ir_Embora(thread_id, wait_sec);
+    pthread_mutex_unlock(&trava);
     //printf("Pessoa %d foi embora.\n", thread_id);
 
     return NULL;
@@ -94,8 +118,6 @@ int main()
 
     for (int i = 0; i < NUMERO_PESSOAS; i++)
         pthread_join(thread[i], NULL);
-
-    printf("OBA");
 
     pthread_mutex_destroy(&trava);
     //pthread_barrier_destroy(&barreira);
