@@ -16,20 +16,22 @@ void *Sushi(void *thread)
     int wait_sec = rand() % 5 + 1;
     //printf("Pessoa %d chegou no sushiBar.\n", thread_id);
     pthread_mutex_lock(&trava);
-    if (cheio == 1)
+    if (cheio)
     {
-        printf("Pessoa %d entrou na fila.\n", thread_id);
+        printf("Pessoa \t%d\t entrou na fila.\n", thread_id);
         pthread_mutex_unlock(&trava);
-        while (cheio == 1)
+        while (cheio)
+        {
             sleep(wait_sec);
-        printf("Pessoa %d esta saindo da fila.\n", thread_id);
+            //printf("**Pessoa %d ainda esta na fila.\n", thread_id);
+        }
         //duas pessoas ainda estao saindo da fila ao msm tempo
         pthread_mutex_lock(&trava);
     }
     lugares--;
     if (lugares == 0)
         cheio = 1;
-    printf("Pessoa %d esta comendo.\t\t\t(%d lugares vagos) CHEIO = %d\n", thread_id, lugares, cheio);
+    printf("Pessoa \t%d\t esta comendo.\t\t\t(%d lugares vagos) CHEIO = %d\n", thread_id, lugares, cheio);
     pthread_mutex_unlock(&trava);
 
     sleep(wait_sec);
@@ -37,25 +39,17 @@ void *Sushi(void *thread)
     pthread_mutex_lock(&trava);
     lugares++;
     if (cheio)
-    {
         sairam++; //contando quantas pessoas acompanhadas foram embora
+    if (sairam >= 5){
+        cheio = sairam = 0;
     }
-    pthread_mutex_unlock(&trava);
-    sleep(wait_sec);
-
-    if (sairam >= 5)
-    {
     /*
     se apos todos os 
     lugares estarem ocupados, 5 pessoas sairem
     quer dizer q n esta mais cheio
     */
-        pthread_mutex_lock(&trava);
-        cheio = sairam = 0;
-        pthread_mutex_unlock(&trava);
-    }
-    printf("Pessoa %d terminou de comer.\t\t(%d lugares vagos) CHEIO = %d\n", thread_id, lugares, cheio);
-
+    printf("Pessoa \t%d\t terminou de comer.\t\t(%d lugares vagos) CHEIO = %d\n", thread_id, lugares, cheio);
+    pthread_mutex_unlock(&trava);
     return NULL;
 }
 
