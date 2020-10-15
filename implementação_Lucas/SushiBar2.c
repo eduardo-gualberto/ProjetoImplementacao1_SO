@@ -88,15 +88,13 @@ int main() {
     pthread_t thread[C];
     int ids[C];
     int i;
-    int fila[C];
     srand(time(NULL));
     for (i=0;i<C;i++){
         ids[i] = i;
-
-        argumentos_vec[i] = (args_struct *)malloc(sizeof(args_struct));
-        argumentos_vec[i]->thread_id = i;
+        argumentos_vec[i] = (args_struct *)malloc(sizeof(args_struct));  
+        argumentos_vec[i]->thread_id = i; //coloca o id da thread e SushiBar nos argumentos
         argumentos_vec[i]->bar = bar;
-        pthread_create(&thread[i], NULL, Sushi,(void *)argumentos_vec[i]);
+        pthread_create(&thread[i], NULL, Sushi,(void *)argumentos_vec[i]); //Passa para a thread a execução da função Sushi com os argumentos relativos a iésiama thread
 
     }
      for (int i = 0; i < C; i++)
