@@ -23,6 +23,7 @@ void *Sushi(void *thread)
         while (cheio == 1)
             sleep(wait_sec);
         printf("Pessoa %d esta saindo da fila.\n", thread_id);
+        //duas pessoas ainda estao saindo da fila ao msm tempo
         pthread_mutex_lock(&trava);
     }
     lugares--;
