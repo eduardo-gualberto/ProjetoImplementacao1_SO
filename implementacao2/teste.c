@@ -10,52 +10,50 @@ int cheio = 0;
 int sairam = 0;
 pthread_mutex_t trava;
 
+int verifica_Cheio(){
+    int esta_cheio;
+    pthread_mutex_lock(&trava);
+    esta_cheio = cheio;
+    pthread_mutex_unlock(&trava);
+    return esta_cheio;
+}
+
 void *Sushi(void *thread)
 {
     int thread_id = *(int *)thread;
-    int wait_sec = rand() % 5 + 1;
+    int wait_sec = rand() % 5 + 1;  //tempo q a pessoa ficara no bar
     //printf("Pessoa %d chegou no sushiBar.\n", thread_id);
     pthread_mutex_lock(&trava);
-    if (cheio == 1)
+    if (cheio)  //se o bar estiver cheio a pessoa vai para fila
     {
-        printf("Pessoa %d entrou na fila.\n", thread_id);
+        printf("Pessoa \t%d\t entrou na fila.\n", thread_id + 1);
         pthread_mutex_unlock(&trava);
-        while (cheio == 1)
+        while (verifica_Cheio())    //verificando se eh possivel entrar no bar
+        {
             sleep(wait_sec);
-        printf("Pessoa %d esta saindo da fila.\n", thread_id);
+            //printf("**Pessoa %d ainda esta na fila.\n", thread_id);
+        }
         //duas pessoas ainda estao saindo da fila ao msm tempo
+        //possivel solução: uso de função
         pthread_mutex_lock(&trava);
     }
-    lugares--;
+    lugares--;  //pessoa entra no restaurante
     if (lugares == 0)
-        cheio = 1;
-    printf("Pessoa %d esta comendo.\t\t\t(%d lugares vagos) CHEIO = %d\n", thread_id, lugares, cheio);
+        cheio = 1;  //se n houver mais lugares quer dizer q esta cheio
+    printf("Pessoa \t%d\t esta comendo.\t\t\t(%d lugares vagos) CHEIO = %d\n", thread_id + 1, lugares, cheio);
     pthread_mutex_unlock(&trava);
 
-    sleep(wait_sec);
+    sleep(wait_sec);    //pessoa esta dentro do restaurante comendo
 
     pthread_mutex_lock(&trava);
-    lugares++;
+    lugares++;  //pessoa esta indo embora
     if (cheio)
-    {
         sairam++; //contando quantas pessoas acompanhadas foram embora
+    if (sairam >= 5){               //se apos todos os lugares estarem ocupados,
+        cheio = sairam = 0;         //5 pessoas sairem, quer dizer q n esta mais cheio   
     }
+    printf("Pessoa \t%d\t terminou de comer.\t\t(%d lugares vagos) CHEIO = %d\n", thread_id + 1, lugares, cheio);
     pthread_mutex_unlock(&trava);
-    sleep(wait_sec);
-
-    if (sairam >= 5)
-    {
-    /*
-    se apos todos os 
-    lugares estarem ocupados, 5 pessoas sairem
-    quer dizer q n esta mais cheio
-    */
-        pthread_mutex_lock(&trava);
-        cheio = sairam = 0;
-        pthread_mutex_unlock(&trava);
-    }
-    printf("Pessoa %d terminou de comer.\t\t(%d lugares vagos) CHEIO = %d\n", thread_id, lugares, cheio);
-
     return NULL;
 }
 
