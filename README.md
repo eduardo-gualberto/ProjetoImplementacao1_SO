@@ -24,8 +24,16 @@ Feito isso, basta executar o arquivo e passar como único e indispensável argum
 
 ```bash
 ./compileandrun.sh 1
-```
-ou 
-```bash
+.
+.
+.
 ./compileandrun.sh 2
+.
+.
+.
+./compileandrun.sh 3
+.
+.
+.
+./compileandrun.sh 4
 ```
