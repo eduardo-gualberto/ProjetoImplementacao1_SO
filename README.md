@@ -37,3 +37,10 @@ Feito isso, basta executar o arquivo e passar como único e indispensável argum
 .
 ./compileandrun.sh 4
 ```
+Os comandos acima resultarão no comportamento padrão de cada implementação. Para especificar o números de assentos e de clientes no bar, passe 2 argumentos extras para ./compileandrun. Exemplo:
+
+```bash
+./compileandrun.sh 1 3 10
+```
+
+O primeiro argumento, como dito anteriormente, refere-se a implementação que deseja-se executar. O segundo refere-se a quantidade de assentos que terá no sushi bar. O terceiro e último argumento refere-se a quantidade de clientes que estarão no bar.
