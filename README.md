@@ -6,7 +6,8 @@ Participantes do grupo: Victor Luís Aguilar Antunes, Eduardo dos Santos Gualber
 
 ```bash
 git clone https://github.com/eduardo-gualberto/ProjetoImplementacao1_SO.git
-git submodule add https://github.com/SMFSW/cQueue.git
+cd ProjetoImplementacao1_SO/
+git clone https://github.com/SMFSW/cQueue.git
 ```
 ou baixar os arquivos do repositrio zipados
 
