@@ -1,3 +1,5 @@
+mkdir implementacao{1,2,3}/build 2> /dev/null
+
 make all 2> /dev/null
 
 if [ "$#" == 0 ]
@@ -53,7 +55,17 @@ then
         cd implementacao3/build/
         ./main
     fi
+elif [ $IMPLEMENTACAO == 4 ]
+then
+    if [ $# > 1 ]
+    then
+        cd implementacao4/build/
+        ./main $N_SEATS $N_THREADS
+    else
+        cd implementacao3/build/
+        ./main
+    fi
 else
-    echo "Invalid implementation number. Should be either 1 or 2."
+    echo "Invalid implementation number. Should be either 1, 2, 3 or 4."
     exit
 fi
