@@ -25,7 +25,7 @@ Para execução,  provável que antes deva-se dar permissão de execução do ar
 ```bash
 chmod +x compileandrun.sh
 ```
-Feito isso, basta executar o arquivo e passar como único e indispensável argumento se deseja executar a implementação 1 ou 2. Exemplo abaixo:
+Feito isso, basta executar o arquivo e passar como único e indispensável parâmetro a implementação que deseja executar (1, 2, 3 ou 4). Exemplo abaixo:
 
 ```bash
 ./compileandrun.sh 1
