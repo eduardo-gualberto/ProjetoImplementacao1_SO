@@ -43,4 +43,4 @@ Os comandos acima resultarão no comportamento padrão de cada implementação. 
 ./compileandrun.sh 1 3 10
 ```
 
-O primeiro argumento, como dito anteriormente, refere-se a implementação que deseja-se executar. O segundo refere-se a quantidade de assentos que terá no sushi bar. O terceiro e último argumento refere-se a quantidade de clientes que estarão no bar.
+O primeiro argumento, como dito anteriormente, refere-se a implementação que deseja-se executar. O segundo refere-se a quantidade de assentos que terá no sushi bar. O terceiro e último argumento refere-se a quantidade de clientes que estarão no bar. No exemplo acima, será executada a implementação 1, com 3 assentos no bar e 10 clientes presentes.
