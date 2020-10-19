@@ -1,5 +1,7 @@
 # Projeto de Implementação 1 - Sistemas Operacionais
 
+The sushi bar problem.
+
 Participantes do grupo: Victor Luís Aguilar Antunes, Eduardo dos Santos Gualberto, Lucas Vinícius Domingues e Rafael Yoshio Yamawaki Murata.
 
 ## Instalação
