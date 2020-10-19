@@ -2,7 +2,7 @@ make all 2> /dev/null
 
 if [ "$#" == 0 ]
 then
-    echo "Expected at least 1 parametes, telling wich implementation."
+    echo "Expected at least 1 parameter, telling wich implementation."
     exit
 fi
 
@@ -25,16 +25,34 @@ done
 
 if [ $IMPLEMENTACAO == 1 ]
 then
-    cd implementacao1/build/
-    ./main N_SEATS N_THREADS
+    if [ $# > 1 ]
+    then
+        cd implementacao1/build/
+        ./main $N_SEATS $N_THREADS
+    else
+        cd implementacao1/build/
+        ./main
+    fi
 elif [ $IMPLEMENTACAO == 2 ]
 then
-    cd implementacao2/build/
-    ./main N_SEATS N_THREADS
+    if [ $# > 1 ]
+    then
+        cd implementacao2/build/
+        ./main $N_SEATS $N_THREADS
+    else
+        cd implementacao2/build/
+        ./main
+    fi
 elif [ $IMPLEMENTACAO == 3 ]
 then
-    cd implementacao3/build/
-    ./main N_SEATS N_THREADS
+    if [ $# > 1 ]
+    then
+        cd implementacao3/build/
+        ./main $N_SEATS $N_THREADS
+    else
+        cd implementacao3/build/
+        ./main
+    fi
 else
     echo "Invalid implementation number. Should be either 1 or 2."
     exit

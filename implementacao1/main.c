@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     printf("\n\n");
 
-    if (argc > 2 && atoi(argv[1]) > 0 && atoi(argv[2]) > 0)
+    if (argc > 2)
     {
         SEATS_N = atoi(argv[1]); 
         THREAD_N = atoi(argv[2]);
