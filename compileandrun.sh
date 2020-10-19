@@ -69,3 +69,5 @@ else
     echo "Invalid implementation number. Should be either 1, 2, 3 or 4."
     exit
 fi
+
+cd ../../; rm 1 2> /dev/null
