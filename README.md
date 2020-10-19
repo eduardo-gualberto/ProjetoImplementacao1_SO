@@ -9,7 +9,12 @@ git clone https://github.com/eduardo-gualberto/ProjetoImplementacao1_SO.git
 cd ProjetoImplementacao1_SO/
 git clone https://github.com/SMFSW/cQueue.git
 ```
-ou baixar os arquivos do repositrio zipados
+ou baixar os arquivos do repositrio zipados e então:
+
+```bash
+cd ProjetoImplementacao1_SO/
+git clone https://github.com/SMFSW/cQueue.git
+```
 
 Obs.: Usa-se para uma das implementaçes uma [biblioteca terceira](https://github.com/SMFSW/cQueue) que implementa e cria uma interface de gerenciamento de Filas.
 
