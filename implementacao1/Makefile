@@ -1,6 +1,6 @@
-PROGRAM = main.c SushiBar/SushiBar.c
+PROGRAM = main.c SushiBar/SushiBar.c ../cQueue/src/cQueue.c
 
-FOLDER = ./build/compilado2
+FOLDER = ./build/main
 
 all: 
 	gcc -pthread $(PROGRAM) -o $(FOLDER)
