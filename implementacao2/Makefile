@@ -1,6 +1,6 @@
 PROGRAM = teste.c
 
-FOLDER = ./build/compilado3
+FOLDER = ./build/main
 
 all: 
 	gcc -pthread $(PROGRAM) -o $(FOLDER)

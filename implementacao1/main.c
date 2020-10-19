@@ -25,9 +25,11 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     int SEATS_N = 5, THREAD_N = 15;
 
-    if (argc > 2)
+    printf("\n\n");
+
+    if (argc > 2 && atoi(argv[1]) > 0 && atoi(argv[2]) > 0)
     {
-        SEATS_N = atoi(argv[1]);
+        SEATS_N = atoi(argv[1]); 
         THREAD_N = atoi(argv[2]);
         printf("Executing with %d seats and %d threads.\n\n", SEATS_N, THREAD_N);
     }

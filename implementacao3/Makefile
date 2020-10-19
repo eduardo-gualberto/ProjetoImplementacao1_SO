@@ -1,6 +1,6 @@
 PROGRAM = SushiBar2.c
 
-FOLDER = ./build/compilado1
+FOLDER = ./build/main
 
 all: 
 	gcc -pthread $(PROGRAM) -o $(FOLDER)
