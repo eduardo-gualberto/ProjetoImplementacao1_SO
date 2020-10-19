@@ -27,14 +27,6 @@ Feito isso, basta executar o arquivo e passar como único e indispensável argum
 .
 .
 .
-./compileandrun.sh 2
-.
-.
-.
-./compileandrun.sh 3
-.
-.
-.
 ./compileandrun.sh 4
 ```
 Os comandos acima resultarão no comportamento padrão de cada implementação. Para especificar o número de assentos e de clientes no bar, passe 2 argumentos extras para ./compileandrun. Exemplo:
