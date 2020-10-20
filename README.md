@@ -12,6 +12,7 @@ git clone https://github.com/SMFSW/cQueue.git
 ou baixar os arquivos do repositrio zipados e então:
 
 ```bash
+unzip ProjetoImplementacao1_SO.zip -d ProjetoImplementacao1_SO
 cd ProjetoImplementacao1_SO/
 git clone https://github.com/SMFSW/cQueue.git
 ```
