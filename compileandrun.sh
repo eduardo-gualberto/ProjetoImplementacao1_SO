@@ -1,6 +1,6 @@
-mkdir implementacao{1,2,3}/build 2> /dev/null
+mkdir implementacao{1,2,3}/build > /dev/null 2>&1
 
-make all 2> /dev/null
+make all > /dev/null 2>&1
 
 if [ "$#" == 0 ]
 then
