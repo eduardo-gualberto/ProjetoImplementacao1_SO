@@ -2,18 +2,19 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 int lugares;           //numero de lugares atualmente ocupados
 int n_assentos;        //numero de assentos maximos do restaurante
-int cheio = 0;         //indica se restaurante esta cheio
+bool cheio = false;    //indica se restaurante esta cheio
+bool ultimo;           //marca a ultima pessoa a entrar no bar antes de lotar
 int sairam = 0;        //indica o numero de pessoas acompanhadas q sairam do SushiBar
-int ultimo;            //marca a ultima pessoa a entrar no bar antes de lotar
 pthread_mutex_t trava; //mutex para controle
 
 //funçao q verifica se o restaurante ainda esta cheio
-int verifica_Cheio()
+bool verifica_Cheio()
 {
-    int esta_cheio;
+    bool esta_cheio;
     pthread_mutex_lock(&trava);
     esta_cheio = cheio;
     pthread_mutex_unlock(&trava);
@@ -21,39 +22,34 @@ int verifica_Cheio()
 }
 
 //funçao q manda pessoa para a fila
-void espera_fila(int wait_sec, int thread_id)
+void espera_fila(int wait_sec, int pessoa_N)
 {
-    printf("Pessoa \t%d\t entrou na fila.\n", thread_id + 1);
+    pthread_mutex_unlock(&trava);
+    printf("Pessoa \t%d\t entrou na fila.\n", pessoa_N);
     while (verifica_Cheio()) //verificando se eh possivel entrar no bar
-    {
         sleep(wait_sec);
-        //printf("**Pessoa %d ainda esta na fila.\n", thread_id);
-    }
     pthread_mutex_lock(&trava);
 }
 
 //funçao q faz pessoa entrar no restaurante
-int entrar_SushiBar(int thread_id)
+bool entrar_SushiBar(int pessoa_N)
 {
     lugares--; //pessoa entra no restaurante
     if (lugares <= 0 && ultimo)
     {
-        printf("\nPessoa \t%d\t esta voltando para a fila.\n\n", thread_id + 1);
+        printf("\nPessoa \t%d\t esta voltando para a fila.\n\n", pessoa_N);
         lugares++;
-        return 1;   //se duas pessoaa tentarem entrar ao msm tempo uma eh mandada de novo pra fila
+        return false; //se duas pessoaa tentarem entrar ao msm tempo uma eh mandada de novo pra fila
     }
     if (lugares == 0)
-    {
-        cheio = 1;  //se n houver mais lugares quer dizer q esta cheio
-        ultimo = 1; //e pessoa foi a ultima a entrar
-    }
-    printf("Pessoa \t%d\t esta comendo.\t\t\t(%d lugares vagos) CHEIO = %d\n", thread_id + 1, lugares, cheio);
+        cheio = ultimo = true; //se n houver mais lugares quer dizer q esta cheio e pessoa foi a ultima a entrar
+    printf("Pessoa \t%d\t esta comendo.\t\t\t(%d lugares vagos) CHEIO = %d\n", pessoa_N, lugares, cheio);
     pthread_mutex_unlock(&trava);
-    return 0;
+    return true;    //pessoa conseguiu entrar
 }
 
 //funçao q faz pessoa sair do restaurante
-void sair_SushiBar(int thread_id)
+void sair_SushiBar(int pessoa_N)
 {
     pthread_mutex_lock(&trava);
     lugares++; //pessoa esta indo embora
@@ -61,29 +57,25 @@ void sair_SushiBar(int thread_id)
         sairam++; //contando quantas pessoas acompanhadas foram embora
     if (sairam >= n_assentos)
     {                                //se apos todos os lugares estarem ocupados,
-        ultimo = cheio = sairam = 0; //5 pessoas sairem, quer dizer q n esta mais cheio
+        sairam = 0; //5 pessoas sairem, quer dizer q n esta mais cheio
+        ultimo = cheio = false;
     }
-    printf("Pessoa \t%d\t terminou de comer.\t\t(%d lugares vagos) CHEIO = %d\n", thread_id + 1, lugares, cheio);
+    printf("Pessoa \t%d\t terminou de comer.\t\t(%d lugares vagos) CHEIO = %d\n", pessoa_N, lugares, cheio);
     pthread_mutex_unlock(&trava);
 }
 
 //Solução q n eh justa, pois ordem de chegada n eh mantida.
 void *Sushi(void *thread)
 {
-    int thread_id = *(int *)thread;
+    int pessoa_N = (*(int *)thread) + 1;
     int wait_sec = rand() % 5 + 1; //tempo q a pessoa ficara no bar
-    //printf("Pessoa %d chegou no sushiBar.\n", thread_id);
     pthread_mutex_lock(&trava);
-    if (cheio)
-    { //se o bar estiver cheio a pessoa vai para fila
-    FILA:
-        pthread_mutex_unlock(&trava);
-        espera_fila(wait_sec, thread_id);
-    }
-    if (entrar_SushiBar(thread_id) == 1)
+    if (cheio) //se o bar estiver cheio a pessoa vai para fila
+FILA:   espera_fila(wait_sec, pessoa_N);
+    if (!entrar_SushiBar(pessoa_N))
         goto FILA;
     sleep(wait_sec); //pessoa esta dentro do restaurante comendo
-    sair_SushiBar(thread_id);
+    sair_SushiBar(pessoa_N);
     return NULL;
 }
 
@@ -91,9 +83,7 @@ int main(int argc, char *argv[])
 {
     int n_Pessoas = atoi(argv[2]);
     if (n_Pessoas <= 0)
-    {
         n_Pessoas = 10;
-    }
     n_assentos = atoi(argv[1]);
     if (n_assentos <= 0)
         n_assentos = 5;
