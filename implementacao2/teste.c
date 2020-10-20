@@ -3,9 +3,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define NUMERO_PESSOAS 22
-
-int lugares = 5;
+int lugares;
+int n_assentos;
 int cheio = 0;
 int sairam = 0;
 pthread_mutex_t trava;
@@ -55,7 +54,7 @@ FILA:   pthread_mutex_unlock(&trava);
     lugares++;  //pessoa esta indo embora
     if (cheio)
         sairam++; //contando quantas pessoas acompanhadas foram embora
-    if (sairam >= 5){               //se apos todos os lugares estarem ocupados,
+    if (sairam >= n_assentos){               //se apos todos os lugares estarem ocupados,
         cheio = sairam = 0;         //5 pessoas sairem, quer dizer q n esta mais cheio   
     }
     printf("Pessoa \t%d\t terminou de comer.\t\t(%d lugares vagos) CHEIO = %d\n", thread_id + 1, lugares, cheio);
@@ -63,22 +62,31 @@ FILA:   pthread_mutex_unlock(&trava);
     return NULL;
 }
 
-int main()
+int main (int argc, char *argv[])
 {
-    pthread_t thread[NUMERO_PESSOAS];
-    int ids[NUMERO_PESSOAS];
+    int n_Pessoas = atoi(argv[2]);
+    if (n_Pessoas <= 0){
+        n_Pessoas = 10;
+    }
+    n_assentos = atoi(argv[1]);
+    if (n_assentos <= 0)
+        n_assentos = 5;        
+    lugares = n_assentos;
+    
+    pthread_t thread[n_Pessoas];
+    int ids[n_Pessoas];
     srand(time(NULL));
 
     if (pthread_mutex_init(&trava, NULL) != 0)
         return 1;
 
-    for (int i = 0; i < NUMERO_PESSOAS; i++)
+    for (int i = 0; i < n_Pessoas; i++)
     {
         ids[i] = i;
         pthread_create(&thread[i], NULL, Sushi, &ids[i]);
     }
 
-    for (int i = 0; i < NUMERO_PESSOAS; i++)
+    for (int i = 0; i < n_Pessoas; i++)
         pthread_join(thread[i], NULL);
 
     pthread_mutex_destroy(&trava);
