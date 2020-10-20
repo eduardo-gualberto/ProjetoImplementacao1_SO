@@ -37,7 +37,7 @@ bool entrar_SushiBar(int pessoa_N)
     lugares--; //pessoa entra no restaurante
     if (lugares <= 0 && ultimo)
     {
-        printf("\nPessoa \t%d\t esta voltando para a fila.\n\n", pessoa_N);
+        printf("Pessoa \t%d\t esta voltando para a fila.\n", pessoa_N);
         lugares++;
         return false; //se duas pessoaa tentarem entrar ao msm tempo uma eh mandada de novo pra fila
     }
@@ -81,12 +81,10 @@ FILA:   espera_fila(wait_sec, pessoa_N);
 
 int main(int argc, char *argv[])
 {
-    int n_Pessoas = atoi(argv[2]);
-    if (n_Pessoas <= 0)
-        n_Pessoas = 10;
-    n_assentos = atoi(argv[1]);
-    if (n_assentos <= 0)
-        n_assentos = 5;
+    int n_Pessoas = 12;     //numero de pessoas padrao
+    if (argv[1] != NULL && atoi(argv[1]) > 0)
+        n_Pessoas = atoi(argv[1]);
+    n_assentos = 5;
     lugares = n_assentos;
 
     pthread_t thread[n_Pessoas];
@@ -99,7 +97,8 @@ int main(int argc, char *argv[])
     for (int i = 0; i < n_Pessoas; i++)
     {
         ids[i] = i;
-        pthread_create(&thread[i], NULL, Sushi, &ids[i]);
+        if (pthread_create(&thread[i], NULL, Sushi, &ids[i]) != 0)
+            return 1;
     }
 
     for (int i = 0; i < n_Pessoas; i++)
