@@ -1,4 +1,6 @@
-mkdir implementacao{1,2,3}/build > /dev/null 2>&1
+#!/usr/bin/env bash
+
+mkdir implementacao{1,2,3,4}/build > /dev/null 2>&1
 
 make all > /dev/null 2>&1
 
@@ -61,7 +63,7 @@ then
         cd implementacao4/build/
         ./main $N_THREADS $N_SEATS
     else
-        cd implementacao3/build/
+        cd implementacao4/build/
         ./main
     fi
 else
