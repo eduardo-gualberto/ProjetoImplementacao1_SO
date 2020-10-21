@@ -4,38 +4,36 @@
 #include <time.h>
 #include <unistd.h>
 
-#define NUMERO_LUGARES 5
-
 pthread_mutex_t mutex;
 pthread_cond_t condicao;
 pthread_barrier_t barreira;
 int lugares_ocupados = 0;
+int numero_lugares;
 
 void *SushiBar(void* thread) {
     int thread_id = *(int*) thread;
-    //int wait_sec = rand() % 10 + 1;
-    int wait_sec = rand() % 10 + 1;
+    int wait_sec = rand() % 5 + 1;
+    
     // Entrada dos Clientes:
 
     pthread_mutex_lock(&mutex);
     
-    while (lugares_ocupados == NUMERO_LUGARES) {
+    while (lugares_ocupados == numero_lugares) {
 
-        sleep(rand() % 3 + 1);
+        //sleep(wait_sec);
         printf("Cliente %d esperando...\n", thread_id);        
 
         pthread_cond_wait(&condicao, &mutex);
-        // printf("Veio do broadcast\n");
+
         pthread_mutex_unlock(&mutex);
 
         pthread_mutex_lock(&mutex);
     }
 
     lugares_ocupados++;
-    //printf("Número de lugares: %d\n", lugares_ocupados);
 
-    if (lugares_ocupados > NUMERO_LUGARES) {
-        lugares_ocupados = NUMERO_LUGARES;
+    if (lugares_ocupados > numero_lugares) {
+        lugares_ocupados = numero_lugares;
     }
 
     printf("Cliente %d ENTROU\n", thread_id);    
@@ -43,11 +41,12 @@ void *SushiBar(void* thread) {
     pthread_mutex_unlock(&mutex);
 
     sleep(wait_sec);
-    //printf("Passa aq\n");
+
+    // Saída dos Clientes:
 
     pthread_mutex_lock(&mutex);
 
-    if (lugares_ocupados == NUMERO_LUGARES) {
+    if (lugares_ocupados == numero_lugares) {
         pthread_mutex_unlock(&mutex);
         pthread_barrier_wait(&barreira);
         
@@ -76,7 +75,6 @@ void *SushiBar(void* thread) {
     }
     
     pthread_mutex_unlock(&mutex);
-    //printf("Lugares Ocupados: %d\n", lugares_ocupados);
 
 }
 
@@ -84,12 +82,16 @@ void *SushiBar(void* thread) {
 
 int main(int argc, char *argv[]) {
 
-    int numero_clientes = 12;
-    //int numero_clientes = atoi(argv[1]);
+    int numero_clientes = 12;                   // Número de Clientes Padrão
+    numero_lugares = 5;                         // Número Padrão de Lugares no Bar
 
-    if (numero_clientes <= 0) {
-        printf("Número de Clientes Inválido.\n");
-        return -1;
+    // Recebendo Parâmetros por Linha de Comando
+    if (argv[1] != NULL && atoi(argv[1]) > 0) { 
+        numero_clientes = atoi(argv[1]);
+    }
+    
+    if (argv[2] != NULL && atoi(argv[2]) > 0) {
+        numero_lugares = atoi(argv[2]);
     }
 
     pthread_t threads[numero_clientes];
@@ -97,9 +99,10 @@ int main(int argc, char *argv[]) {
     int status;                                 // Checa o status de cada pthread (sucesso / falha)
     srand(time(NULL));
 
+    // Inicializações:
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&condicao, NULL);
-    pthread_barrier_init(&barreira, NULL, NUMERO_LUGARES);
+    pthread_barrier_init(&barreira, NULL, numero_lugares);
 
     for(int i = 0; i < numero_clientes; i++) {
         thread_ids[i] = i;
@@ -115,7 +118,6 @@ int main(int argc, char *argv[]) {
 
     for (int j = 0; j < numero_clientes; j++) {
         pthread_join(threads[j], NULL);
-        //printf("Passa aq\n");
     }
 
     pthread_mutex_destroy(&mutex);
@@ -125,3 +127,4 @@ int main(int argc, char *argv[]) {
     return 0;
 
 }
+
