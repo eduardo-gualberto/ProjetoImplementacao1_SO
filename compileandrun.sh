@@ -4,7 +4,7 @@ make all > /dev/null 2>&1
 
 if [ "$#" == 0 ]
 then
-    echo "Expected at least 1 parameter, telling wich implementation."
+    echo "Expected at least 1 parameter to select wich implementation."
     exit
 fi
 

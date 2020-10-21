@@ -3,11 +3,11 @@
 struct SushiBar
 {
     sem_t seats_sem;        //semaforo para controlar a entrada no restaurante
-    pthread_mutex_t mtx;    //mutex para garantir exclusividade mutua quando acessar 'count' e 'n'
+    pthread_mutex_t mtx;    //mutex para garantir exclusividade mutua quando acessar as variaveis de controle
     pthread_barrier_t barr; //barreira para o caso de bar lotado
-    Queue_t q;              //fila para garantir espera justa
 
     //variaveis de controle
+    Queue_t q;   //fila para garantir espera justa
     int n;       //número de lugares no bar
     int count;   //número de lugares ocupados no bar
     int waiting; //número de pessoas aguardando
@@ -34,6 +34,9 @@ SushiBar *SushiBar_init(int n_, int t_)
 void SushiBar_destroy(SushiBar *sb)
 {
     q_kill(&sb->q);
+    pthread_mutex_destroy(&sb->mtx);
+    pthread_barrier_destroy(&sb->barr);
+    sem_destroy(&sb->seats_sem);
     free(sb);
 }
 
@@ -85,7 +88,7 @@ void SushiBar_leave(SushiBar *sb, int tid)
 
         pthread_mutex_unlock(&sb->mtx);
 
-        pthread_barrier_wait(&sb->barr); //aguardar todos chegarem a este ponto para decrementar variavel de controle
+        pthread_barrier_wait(&sb->barr); //aguardar todos chegarem a este ponto para decrementar variavel de controle 'count'
 
         pthread_mutex_lock(&sb->mtx);
         sb->count--;
@@ -97,7 +100,7 @@ void SushiBar_leave(SushiBar *sb, int tid)
         sem_post(&sb->seats_sem);
         return;
     }
-    else
+    else //caso não esteja lotado apenas sair do bar
     {
         sb->count--;
         printf("Customer id: %d left. There are %d seats available.\n", tid, sb->n - sb->count);
@@ -108,45 +111,56 @@ void SushiBar_leave(SushiBar *sb, int tid)
     return;
 }
 
+//Gerencia o fluxo de threads por meio de uma fila
 void SushiBar_queue(SushiBar *sb, int tid)
 {
+    /*
+        Aqui existem dois casos: bar lotado ou bar não-lotado.
+        Bar lotado: entrar numa fila até que você seja o primeiro da fila e o bar se esvazie
+        Bar não-lotado: entrar direto para o bar, sem necessidade de fila
+    */
+
     pthread_mutex_lock(&sb->mtx);
-    if (sb->count >= sb->n)
+    if (sb->count >= sb->n) //verifica se está lotado
     {
-        q_push(&sb->q, (void *)(&tid));
-        // printf("Entrou pra fila\n");
+        q_push(&sb->q, (void *)(&tid)); //colocar na fila a id da thread que deseja entrar
+
         pthread_mutex_unlock(&sb->mtx);
-        int *aux = (int *)malloc(sizeof(int));
-        int notempty;
+        int *aux = (int *)malloc(sizeof(int)); //variavel para realizar a interação com a fila
+        int notempty;                          //condição do loop
+    //busy wait
     WAIT:
         do
         {
             pthread_mutex_lock(&sb->mtx);
-            q_peek(&sb->q, aux);
-            // printf("Entrou no loop\n");
-            // printf("Checou o primeiro da fila\n");
-            notempty = sb->count > 0;
+            q_peek(&sb->q, aux); //varifica o primeiro da fila (sem retirá-lo da fila) e coloca em 'aux'
+
+            notempty = sb->count > 0; //testa para ver se o bar já se esvaziou
+
             pthread_mutex_unlock(&sb->mtx);
-        } while (notempty && *aux != tid);
+        } while (notempty && *aux != tid); //se for o primeiro da fila ou o bar estiver se esvaziado, saia
 
         pthread_mutex_lock(&sb->mtx);
-        if (sb->count < sb->n && *aux == tid)
+        if (sb->count < sb->n && *aux == tid) //controle para garantir que o bar ainda tem espaço para abrigar o primeiro da fila
         {
+            //entra para o bar
             sb->count++;
             pthread_mutex_unlock(&sb->mtx);
             sem_wait(&sb->seats_sem);
             pthread_mutex_lock(&sb->mtx);
+
+            //libera lugar na fila
             q_pop(&sb->q, aux);
             pthread_mutex_unlock(&sb->mtx);
             return;
         }
-        else
+        else //aqui faz com que o excedente de threads retornem para a espera
         {
             pthread_mutex_unlock(&sb->mtx);
             goto WAIT;
         }
     }
-    else
+    else // caso não esteja lotado, apenas entrar para o bar
     {
         sb->count++;
         pthread_mutex_unlock(&sb->mtx);
