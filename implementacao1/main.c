@@ -29,18 +29,18 @@ int main(int argc, char *argv[])
 
     if (argc > 2)
     {
-        SEATS_N = atoi(argv[1]); 
-        THREAD_N = atoi(argv[2]);
-        printf("Executing with %d seats and %d threads.\n\n", SEATS_N, THREAD_N);
+        THREAD_N = atoi(argv[1]);
+        SEATS_N = atoi(argv[2]);
+        printf("Executing with %d threads and %d seats.\n\n", THREAD_N, SEATS_N);
     }
     else if (argc == 2)
     {
-        printf("Usage: './main' wich defaults to 5 seats and 15 threads,\nor specify the amount of seats and threads with: './main <seats> <thread_num>'.\n");
+        printf("Usage: './compileandrun 1' wich defaults to 5 seats and 15 threads,\nor specify the amount of seats and threads with: './main <seats> <thread_num>'.\n");
         return 0;
     }
     else
     {
-        printf("Usage: './main <seats> <thread_num>'.\nDefaults to seats = 5, thread_num = 15.\n\n");
+        printf("Usage: './compileandrun 1 <thread_num> <seats>'.\nDefaults to thread_num = 15 and seats = 5.\n\n");
     }
 
     sb = SushiBar_init(SEATS_N, THREAD_N);

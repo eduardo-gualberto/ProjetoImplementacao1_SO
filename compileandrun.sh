@@ -16,11 +16,10 @@ do
         IMPLEMENTACAO=$arg 
     elif [ "$counter" == 2 ]
     then
-        N_SEATS=$arg 
-
+        N_THREADS=$arg 
     elif [ "$counter" == 3 ]
     then
-        N_THREADS=$arg 
+        N_SEATS=$arg 
     fi
     counter=$((counter+1))
 done
@@ -30,7 +29,7 @@ then
     if [ $# > 1 ]
     then
         cd implementacao1/build/
-        ./main $N_SEATS $N_THREADS
+        ./main $N_THREADS $N_SEATS
     else
         cd implementacao1/build/
         ./main
@@ -40,7 +39,7 @@ then
     if [ $# > 1 ]
     then
         cd implementacao2/build/
-        ./main $N_SEATS $N_THREADS
+        ./main $N_THREADS $N_SEATS
     else
         cd implementacao2/build/
         ./main
@@ -50,7 +49,7 @@ then
     if [ $# > 1 ]
     then
         cd implementacao3/build/
-        ./main $N_SEATS $N_THREADS
+        ./main $N_THREADS $N_SEATS
     else
         cd implementacao3/build/
         ./main
@@ -60,7 +59,7 @@ then
     if [ $# > 1 ]
     then
         cd implementacao4/build/
-        ./main $N_SEATS $N_THREADS
+        ./main $N_THREADS $N_SEATS
     else
         cd implementacao3/build/
         ./main
