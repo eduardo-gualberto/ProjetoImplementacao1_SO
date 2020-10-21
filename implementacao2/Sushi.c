@@ -97,6 +97,8 @@ int main(int argc, char *argv[])
         return 1;
 
     printf("\n\t*** %d Pessoas frequentarao o SushiBar que possui %d lugares. ***\n\n", n_Pessoas, n_assentos);
+    struct timeval start, finish;
+    gettimeofday(&start, NULL);
     for (int i = 0; i < n_Pessoas; i++)
     {
         ids[i] = i;
@@ -105,6 +107,9 @@ int main(int argc, char *argv[])
     }
     for (int i = 0; i < n_Pessoas; i++)
         pthread_join(thread[i], NULL);
+
+    gettimeofday(&finish, NULL);
+    printf("\nO tempo de funcionamento do SushiBar foi de %fs.\n\n", (double)(finish.tv_sec - start.tv_sec) + (double)(finish.tv_usec - start.tv_usec)/1000);
 
     pthread_mutex_destroy(&trava);
     return 0;
