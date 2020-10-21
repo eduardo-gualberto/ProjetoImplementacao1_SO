@@ -6,7 +6,8 @@ COMPILER = gcc
 
 FLAGS = -pthread -Wall
 
-all: $(COMPILER) $(FLAGS) $(PROGRAM) -o $(FOLDER)
+all: 
+	$(COMPILER) $(FLAGS) $(PROGRAM) -o $(FOLDER)
 
 clean: 
 	rm $(FOLDER)
