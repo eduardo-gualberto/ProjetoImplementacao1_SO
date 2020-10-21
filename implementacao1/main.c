@@ -1,8 +1,3 @@
-/*
-    compilar : gcc -pthread main.c SushiBar/SushiBar.c -o buid/main
-    rodar    : ./build/main
-*/
-
 #include "SushiBar/SushiBar.h"
 #include <time.h>
 #include <math.h>
