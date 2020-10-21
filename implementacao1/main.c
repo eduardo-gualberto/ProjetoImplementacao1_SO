@@ -46,11 +46,17 @@ int main(int argc, char *argv[])
     sb = SushiBar_init(SEATS_N, THREAD_N);
     pthread_t t[THREAD_N];
 
+    clock_t begin = clock();
     for (int i = 0; i < THREAD_N; i++)
         pthread_create(&t[i], NULL, thread_entry, i);
 
     for (int i = 0; i < THREAD_N; i++)
         pthread_join(t[i], NULL);
+    clock_t end = clock();
+
+    double duration = (double)(end - begin) / CLOCKS_PER_SEC;
+
+    printf("Took %fs to execute.\n", duration);
 
     SushiBar_destroy(sb);
 
