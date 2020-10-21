@@ -43,7 +43,7 @@ bool entrar_SushiBar(int pessoa_N)
     }
     if (lugares_livres == 0)
         cheio = ultimo = true; //se n houver mais lugares quer dizer q esta cheio e pessoa foi a ultima a entrar
-    printf("Pessoa \t%d\t esta comendo.\t\t\t(%d lugares_livres vagos) CHEIO = %d\n", pessoa_N, lugares_livres, cheio);
+    printf("Pessoa \t%d\t esta comendo.\t\t\t(%d lugares vagos) CHEIO = %d\n", pessoa_N, lugares_livres, cheio);
     pthread_mutex_unlock(&trava);
     return true;    //pessoa conseguiu entrar
 }
@@ -60,7 +60,7 @@ void sair_SushiBar(int pessoa_N)
         sairam = 0; //5 pessoas sairem, quer dizer q n esta mais cheio
         ultimo = cheio = false;
     }
-    printf("Pessoa \t%d\t terminou de comer.\t\t(%d lugares_livres vagos) CHEIO = %d\n", pessoa_N, lugares_livres, cheio);
+    printf("Pessoa \t%d\t terminou de comer.\t\t(%d lugares vagos) CHEIO = %d\n", pessoa_N, lugares_livres, cheio);
     pthread_mutex_unlock(&trava);
 }
 
