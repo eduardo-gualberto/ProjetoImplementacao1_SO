@@ -58,7 +58,6 @@ void SushiBar_enter(SushiBar *sb, int tid)
     }
     pthread_mutex_unlock(&sb->mtx);
 
-    // sem_wait(&(sb->seats_sem)); //aguardar lugar disponível no bar
     SushiBar_queue(sb, tid);
 
     //incrementa variavel controladora
