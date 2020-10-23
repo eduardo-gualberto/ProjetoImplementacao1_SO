@@ -1,4 +1,5 @@
 #include "SushiBar2.h"
+#include <time.h>
 #define N 5  //Número de assentos disponíveis
 #define C 25//Número de clientes
 
@@ -91,6 +92,7 @@ int main()
     int ids[C];
     int i;
     srand(time(NULL));
+    clock_t begin = clock();
     for (i = 0; i < C; i++)
     {
         ids[i] = i;
@@ -102,6 +104,9 @@ int main()
     for (int i = 0; i < C; i++)
         pthread_join(thread[i], NULL);
 
+    clock_t end = clock();
+    double duration = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Took %fs to execute.\n", duration);
     free(argumentos_vec);
     return 0;
 }
