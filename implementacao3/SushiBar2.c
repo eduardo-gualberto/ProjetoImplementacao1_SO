@@ -1,6 +1,6 @@
 #include "SushiBar2.h"
 #define N 5  //Número de assentos disponíveis
-#define C 11 //Número de clientes
+#define C 25//Número de clientes
 
 struct SushiBar
 {
@@ -40,7 +40,7 @@ void SushiBar_enter(SushiBar *sb, int tid)
         Se não, entra no bar e utiliza um assento
     */
     pthread_mutex_lock(&sb->mtx);
-    if (sb->count == sb->n)
+VER:    if (sb->count == sb->n)
     {
         printf("Pessoa %c esperando a liberação de todos os assentos\n", 'A' + tid);
         pthread_mutex_unlock(&sb->mtx); //Mutex desbloqueia aqui para que não haja deadlock
@@ -48,6 +48,7 @@ void SushiBar_enter(SushiBar *sb, int tid)
         {
         }
         pthread_mutex_lock(&sb->mtx); //mutex bloqueia para incrementar count
+        goto VER;
     }
     sb->count++; //incremente count -> ocupa um assento
     printf("Pessoa %c ENTROU.\t count = %d\n", 'A' + tid, sb->count);
