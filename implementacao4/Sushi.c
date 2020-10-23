@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <sys/time.h>
 
 int lugares_livres;    //numero de lugares atualmente livres
 int n_assentos;        //numero de assentos maximos do restaurante
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
         pthread_join(thread[i], NULL);
 
     gettimeofday(&finish, NULL);
-    printf("\nO tempo de funcionamento do SushiBar foi de %fs.\n\n", (double)(finish.tv_sec - start.tv_sec) + (double)(finish.tv_usec - start.tv_usec)/1000);
+    printf("\nO tempo de funcionamento do SushiBar foi de %fs.\n\n", (double)(finish.tv_sec - start.tv_sec) + (double)(finish.tv_usec - start.tv_usec)/10000);
 
     pthread_mutex_destroy(&trava);
     return 0;
