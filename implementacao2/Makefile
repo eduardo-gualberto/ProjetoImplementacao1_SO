@@ -1,4 +1,4 @@
-PROGRAM = Sushi.c
+PROGRAM = SushiBar.c
 
 FOLDER = ./build/main
 
