@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 pthread_mutex_t mutex;          // mutex para garantir o controle das variáveis
@@ -31,10 +32,7 @@ void EntraCliente(int thread_id) {
     // Entrada do Cliente
     lugares_ocupados++;
 
-    if (lugares_ocupados > numero_lugares) {
-        lugares_ocupados = numero_lugares;
-    }
-
+    //printf("Lugares Ocupados: %d\n", lugares_ocupados);
     printf("Cliente %d ENTROU\n", thread_id);    
 
     pthread_mutex_unlock(&mutex);
@@ -126,6 +124,10 @@ int main(int argc, char *argv[]) {
     pthread_cond_init(&condicao, NULL);
     pthread_barrier_init(&barreira, NULL, numero_lugares);
 
+    // Determinando o Tempo de Execução usando a struct timeval:
+    struct timeval inicio, fim;
+    gettimeofday(&inicio, NULL);
+
     for(int i = 0; i < numero_clientes; i++) {
         thread_ids[i] = i;
         status = pthread_create(&threads[i], NULL, SushiBar, &thread_ids[i]);
@@ -142,6 +144,9 @@ int main(int argc, char *argv[]) {
         pthread_join(threads[j], NULL);
     }
 
+    gettimeofday(&fim, NULL);
+    printf("Tempo de Execução: %lf\n", (double)(fim.tv_sec - inicio.tv_sec) + (double)(fim.tv_usec - inicio.tv_usec)/10000);       // Tempo de Execução
+    
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&condicao);
     pthread_barrier_destroy(&barreira);
