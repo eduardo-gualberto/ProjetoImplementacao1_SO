@@ -14,6 +14,7 @@ typedef struct args_struct
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
+    int i;
     int SEATS_N = 5, THREAD_N = 15;
     args_struct **argumentos_vec = (args_struct **)malloc(THREAD_N * sizeof(args_struct *)); /* Estrutra para armazenar os argumentos de cada uma das threads
                                                                                       Feito usando um array de ponteiros pois só trocar os valores de um ponteiro
@@ -39,15 +40,15 @@ int main(int argc, char *argv[])
 
     bar = SushiBar_init(SEATS_N);
     pthread_t t[THREAD_N];
-
+ 
     clock_t begin = clock();
-    for (int i = 0; i < THREAD_N; i++)
+    for (i = 0; i < THREAD_N; i++){
         argumentos_vec[i] = (args_struct *)malloc(sizeof(args_struct));
         argumentos_vec[i]->thread_id = i; //coloca o id da thread e SushiBar nos argumentos
         argumentos_vec[i]->bar = bar;
         pthread_create(&t[i], NULL, Sushi, (void *)argumentos_vec[i]);
-
-    for (int i = 0; i < THREAD_N; i++)
+    }
+    for (i = 0; i < THREAD_N; i++)
         pthread_join(t[i], NULL);
     clock_t end = clock();
 
