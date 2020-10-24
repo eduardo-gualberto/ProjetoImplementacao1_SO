@@ -31,9 +31,7 @@ void EntraCliente(int thread_id) {
 
     // Entrada do Cliente
     lugares_ocupados++;
-
-    //printf("Lugares Ocupados: %d\n", lugares_ocupados);
-    printf("Cliente %d ENTROU\n", thread_id);    
+    printf("Cliente %d ENTROU\t\t\t Restam %d lugares no bar\n", thread_id, numero_lugares - lugares_ocupados);    
 
     pthread_mutex_unlock(&mutex);
 }
@@ -43,10 +41,10 @@ void EntraCliente(int thread_id) {
    Esta função recebe o id da thread como parâmetro e 
    coloca as threads em espera
 */
-void EsperaNaFila(int thread_id) {
-    printf("Cliente %d esperando...\n", thread_id);        
-
+void EsperaNaFila(int thread_id) {        
+    printf("Cliente %d esperando...\n", thread_id);
     pthread_cond_wait(&condicao, &mutex);       // Bloqueia as threads, esperando a liberação dos lugares no bar (lotado)   
+    
     pthread_mutex_unlock(&mutex);
 
     pthread_mutex_lock(&mutex);
@@ -69,8 +67,8 @@ void SaiCliente(int thread_id) {
         pthread_mutex_lock(&mutex);
         lugares_ocupados--;
         
-        printf("Cliente %d terminou de comer\n", thread_id);
-        printf("Lotado: Cliente %d SAIU\n", thread_id);
+        //printf("Cliente %d terminou de comer\n", thread_id);
+        printf("Bar Lotado: Cliente %d SAIU \t\t Assentos livres: %d\n", thread_id, numero_lugares - lugares_ocupados);
         
         pthread_mutex_unlock(&mutex);
 
@@ -80,9 +78,8 @@ void SaiCliente(int thread_id) {
         pthread_cond_broadcast(&condicao);      // Sinaliza para as threads que o bar está vazio
     } else {
         lugares_ocupados--;
-        printf("Cliente %d terminou de comer\n", thread_id);
-        printf("Não lotado: Cliente %d SAIU\n", thread_id);
-
+        //printf("Cliente %d terminou de comer\n", thread_id);
+        printf("Bar Não Está Lotado: Cliente %d SAIU\n", thread_id);
     }
     pthread_mutex_unlock(&mutex);
 }
@@ -113,6 +110,8 @@ int main(int argc, char *argv[]) {
     if (argv[2] != NULL && atoi(argv[2]) > 0) {
         numero_lugares = atoi(argv[2]);
     }
+
+    printf("***** Executando com %d threads e %d assentos *****\n\n", numero_clientes, numero_lugares);
 
     pthread_t threads[numero_clientes];
     unsigned int thread_ids[numero_clientes];
@@ -145,7 +144,7 @@ int main(int argc, char *argv[]) {
     }
 
     gettimeofday(&fim, NULL);
-    printf("Tempo de Execução: %lf\n", (double)(fim.tv_sec - inicio.tv_sec) + (double)(fim.tv_usec - inicio.tv_usec)/10000);       // Tempo de Execução
+    printf("\n***** Tempo de Execução: %lf segundos ******\n", (double)(fim.tv_sec - inicio.tv_sec) + (double)(fim.tv_usec - inicio.tv_usec)/10000);       // Tempo de Execução
     
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&condicao);
