@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
     int SEATS_N = 5, THREAD_N = 15;
-    args_struct **argumentos_vec = (args_struct **)malloc(C * sizeof(args_struct *)); /* Estrutra para armazenar os argumentos de cada uma das threads
+    args_struct **argumentos_vec = (args_struct **)malloc(THREAD_N * sizeof(args_struct *)); /* Estrutra para armazenar os argumentos de cada uma das threads
                                                                                       Feito usando um array de ponteiros pois só trocar os valores de um ponteiro
                                                                                       pode levar condições de corrida
                                                                                       */
