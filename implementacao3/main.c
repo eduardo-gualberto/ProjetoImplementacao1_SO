@@ -2,6 +2,7 @@
 #include <time.h>
 #include <math.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 SushiBar *bar;
 
@@ -41,7 +42,8 @@ int main(int argc, char *argv[])
     bar = SushiBar_init(SEATS_N);
     pthread_t t[THREAD_N];
  
-    clock_t begin = clock();
+        struct timeval inicio, fim;
+    gettimeofday(&inicio, NULL);
     for (i = 0; i < THREAD_N; i++){
         argumentos_vec[i] = (args_struct *)malloc(sizeof(args_struct));
         argumentos_vec[i]->thread_id = i; //coloca o id da thread e SushiBar nos argumentos
@@ -50,11 +52,9 @@ int main(int argc, char *argv[])
     }
     for (i = 0; i < THREAD_N; i++)
         pthread_join(t[i], NULL);
-    clock_t end = clock();
-
-    double duration = (double)(end - begin) / CLOCKS_PER_SEC;
-
-    printf("Took %fs to execute.\n", duration);
+    
+    gettimeofday(&fim, NULL);
+    printf("\n***** Tempo de Execução: %lf segundos ******\n", (double)(fim.tv_sec - inicio.tv_sec) + (double)(fim.tv_usec - inicio.tv_usec)/10000);
 
     free(argumentos_vec);
 
