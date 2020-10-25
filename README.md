@@ -19,6 +19,11 @@ git clone https://github.com/SMFSW/cQueue.git
 
 Obs.: Usa-se para uma das implementaçes uma [biblioteca terceira](https://github.com/SMFSW/cQueue) que implementa e cria uma interface de gerenciamento de Filas.
 
+#### Dependências necessárias (Ubuntu/Debian)
+```bash
+sudo apt install gcc make
+```
+
 ## Execução
 
 Para execução,  provável que antes deva-se dar permissão de execução do arquivo "compileandrun.sh"
